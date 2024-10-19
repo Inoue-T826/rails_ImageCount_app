@@ -1,11 +1,18 @@
 <h1>ページ <%= @page_id %></h1>
 
 <% if @page_id < @total_pages %>
-  <p>次のページに進むボタンを選んでください:</p>
-  <%= link_to "ボタン 1", '#', id: 'button-1', class: 'button' %>
-  <%= link_to "ボタン 2", '#', id: 'button-2', class: 'button' %>
-  <%= link_to "ボタン 3", '#', id: 'button-3', class: 'button' %>
-  <%= link_to "ボタン 4", '#', id: 'button-4', class: 'button' %>
+  <p>次のエリアをクリックしてください:</p>
+
+  <div class="button-grid">
+    <% (0..3).each do |row| %>
+      <div class="button-row">
+        <% (0..3).each do |col| %>
+          <% button_number = row * 4 + col + 1 %>
+          <%= link_to "ボタン #{button_number}", '#', id: "button-#{button_number}", class: 'button' %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
   <!-- 次のページへのリンクは非表示で開始 -->
   <div id="next-page-link" style="display: none;">
@@ -13,69 +20,64 @@
   </div>
 
   <script>
-    document.getElementById('button-1').addEventListener('click', function(event) {
-      event.preventDefault();
-      sendClick(1);
-    });
-    document.getElementById('button-2').addEventListener('click', function(event) {
-      event.preventDefault();
-      sendClick(2);
-    });
-    document.getElementById('button-3').addEventListener('click', function(event) {
-      event.preventDefault();
-      sendClick(3);
-    });
-    document.getElementById('button-4').addEventListener('click', function(event) {
-      event.preventDefault();
-      sendClick(4);
-    });
+    document.addEventListener('turbo:load', () => {
+    // ボタンのイベントリスナーを設定
+    const buttons = document.querySelectorAll('.button');
 
-    function sendClick(buttonNumber) {
-      fetch('/clicks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': '<%= form_authenticity_token %>'
-        },
-        body: JSON.stringify({ page: <%= @page_id %>, button: buttonNumber })
-      }).then(response => {
-        if (response.ok) {
-          document.getElementById('next-page-link').style.display = 'block';  // 次のページリンクを表示
-        } else {
-          console.error('クリックの記録に失敗しました。');
-        }
-      }).catch(error => {
-        console.error('クリックの記録に失敗しました: ', error);
+    // 新しいイベントリスナーを再設定
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', function(event) {
+        event.preventDefault();
+        sendClick(index + 1);  // ボタン番号を渡す (1, 2, 3,... 16)
       });
-    }
-  </script>
-<% else %>
-  <p>これが最後のページです。スタートページに戻ります。</p>
-  <!-- スタートページへ戻るリンク -->
-<%= link_to '最初のページへ戻る', '#', id: 'complete-trial-link' %>
+    });
+   });
 
-<!-- スタートページへ戻るリンク（通常のリンク） -->
-<%= link_to 'リタイア', root_path %>
-
-<script>
-  // 試行完了時にサーバーにリクエストを送信してからスタートページにリダイレクト
-  document.getElementById('complete-trial-link').addEventListener('click', function(event) {
-    event.preventDefault(); // 通常のリンク動作を止める
-    fetch('/complete_trial', {
+   function sendClick(buttonNumber) {
+    fetch('/clicks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-Token': '<%= form_authenticity_token %>'
-      }
+      },
+      body: JSON.stringify({ page: <%= @page_id %>, button: buttonNumber })
     }).then(response => {
       if (response.ok) {
-        window.location.href = "<%= root_path %>"; // スタートページにリダイレクト
+        document.getElementById('next-page-link').style.display = 'block';  // 次のページリンクを表示
       } else {
-        console.error('試行の記録に失敗しました。');
+        console.error('クリックの記録に失敗しました。');
       }
     }).catch(error => {
-      console.error('試行の記録に失敗しました: ', error);
+      console.error('クリックの記録に失敗しました: ', error);
     });
-  });
-</script>
+   }
+  </script>
+
+  <p><%= link_to 'スタートページに戻る', root_path %></p>
+
+<% else %>
+  <p>これが最後のページです。スタートページに戻ります。</p>
+  <%= link_to '最初のページへ戻る', '#', id: 'complete-trial-link' %>
+  <%= link_to 'リタイア', root_path %>
+
+  <script>
+    document.getElementById('complete-trial-link').addEventListener('click', function(event) {
+      event.preventDefault();
+      fetch('/complete_trial', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': '<%= form_authenticity_token %>'
+        }
+      }).then(response => {
+        if (response.ok) {
+          window.location.href = "<%= root_path %>";
+        } else {
+          console.error('試行の記録に失敗しました。');
+        }
+      }).catch(error => {
+        console.error('試行の記録に失敗しました: ', error);
+      });
+    });
+  </script>
 <% end %>

@@ -1,20 +1,28 @@
 <h1>管理者ページ</h1>
 <p>総試行回数: <%= @total_trials %></p>
 
-<h2>各ページのボタンクリック数</h2>
-<table>
-  <tr>
-    <th>ページ番号</th>
-    <th>ボタン番号</th>
-    <th>クリック数</th>
-  </tr>
-  <% @clicks_per_page.each do |(page, button), count| %>
+<h2>ボタンクリック数</h2>
+<table border="1">
+  <thead>
     <tr>
-      <td><%= page %></td>
-      <td><%= button %></td>
-      <td><%= count %></td>
+      <th>画像番号</th>
+      <% (1..16).each do |button_number| %>
+        <th>ボタン <%= button_number %></th>
+      <% end %>
     </tr>
-  <% end %>
+  </thead>
+  <tbody>
+    <% @click_counts.group_by { |k, v| k[0] }.each do |page, counts| %>
+      <tr>
+        <td>画像 <%= page %></td>
+        <% (1..16).each do |button_number| %>
+          <td>
+            <%= counts.find { |k, _v| k[1] == button_number }&.last || 0 %>  <!-- カウントが存在しない場合は 0 を表示 -->
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
 </table>
 
 <%= link_to 'スタートページに戻る', root_path %>

@@ -1,5 +1,7 @@
 class ClicksController < ApplicationController
   def create
+    trial_id = session[:trial_id]  # セッションから試行IDを取得
+
     # ボタン番号も保存するように変更
     click = Click.new(page: params[:page], button: params[:button])
 
