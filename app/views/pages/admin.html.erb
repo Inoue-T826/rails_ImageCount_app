@@ -1,0 +1,20 @@
+<h1>管理者ページ</h1>
+<p>総試行回数: <%= @total_trials %></p>
+
+<h2>各ページのボタンクリック数</h2>
+<table>
+  <tr>
+    <th>ページ番号</th>
+    <th>ボタン番号</th>
+    <th>クリック数</th>
+  </tr>
+  <% @clicks_per_page.each do |(page, button), count| %>
+    <tr>
+      <td><%= page %></td>
+      <td><%= button %></td>
+      <td><%= count %></td>
+    </tr>
+  <% end %>
+</table>
+
+<%= link_to 'スタートページに戻る', root_path %>

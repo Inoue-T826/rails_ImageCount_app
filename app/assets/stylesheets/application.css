@@ -1,0 +1,30 @@
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 5px;
+    font-size: 16px;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  .next-page-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  
+  .next-page-link:hover {
+    background-color: #218838;
+  }
+  
