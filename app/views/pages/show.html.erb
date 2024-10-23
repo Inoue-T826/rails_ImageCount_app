@@ -3,14 +3,18 @@
 <% if @page_id < @total_pages %>
   <p>次のエリアをクリックしてください:</p>
 
-  <div class="button-grid">
+  <div class="button-grid" style="position: relative; width: 400px; height: 400px;">
+    <!-- 画像をボタンの上に配置 -->
+    <%= image_tag "image#{@page_id}.jpg", alt: '背景画像', style: 'width: 400px; height: 400px; position: absolute; top: 0; left: 0; z-index: 1;' %>
+
+    <!-- ボタンの配置（透明にする） -->
     <% (0..3).each do |row| %>
-      <div class="button-row">
-        <% (0..3).each do |col| %>
-          <% button_number = row * 4 + col + 1 %>
-          <%= link_to "ボタン #{button_number}", '#', id: "button-#{button_number}", class: 'button' %>
-        <% end %>
-      </div>
+      <% (0..3).each do |col| %>
+        <% button_number = row * 4 + col + 1 %>
+        <button class="button" id="button-<%= button_number %>"  
+                style="width: 100px; height: 100px; position: absolute; top: <%= row * 100 %>px; left: <%= col * 100 %>px; z-index: 2; opacity: 0;" 
+                onclick="sendClick(<%= button_number %>)"></button>
+      <% end %>
     <% end %>
   </div>
 
@@ -20,64 +24,30 @@
   </div>
 
   <script>
-    document.addEventListener('turbo:load', () => {
-    // ボタンのイベントリスナーを設定
-    const buttons = document.querySelectorAll('.button');
-
-    // 新しいイベントリスナーを再設定
-    buttons.forEach((button, index) => {
-      button.addEventListener('click', function(event) {
-        event.preventDefault();
-        sendClick(index + 1);  // ボタン番号を渡す (1, 2, 3,... 16)
-      });
-    });
-   });
-
-   function sendClick(buttonNumber) {
-    fetch('/clicks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': '<%= form_authenticity_token %>'
-      },
-      body: JSON.stringify({ page: <%= @page_id %>, button: buttonNumber })
-    }).then(response => {
-      if (response.ok) {
-        document.getElementById('next-page-link').style.display = 'block';  // 次のページリンクを表示
-      } else {
-        console.error('クリックの記録に失敗しました。');
-      }
-    }).catch(error => {
-      console.error('クリックの記録に失敗しました: ', error);
-    });
-   }
-  </script>
-
-  <p><%= link_to 'スタートページに戻る', root_path %></p>
-
-<% else %>
-  <p>これが最後のページです。スタートページに戻ります。</p>
-  <%= link_to '最初のページへ戻る', '#', id: 'complete-trial-link' %>
-  <%= link_to 'リタイア', root_path %>
-
-  <script>
-    document.getElementById('complete-trial-link').addEventListener('click', function(event) {
-      event.preventDefault();
-      fetch('/complete_trial', {
+    function sendClick(buttonNumber) {
+      fetch('/clicks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': '<%= form_authenticity_token %>'
-        }
+        },
+        body: JSON.stringify({ page: <%= @page_id %>, button: buttonNumber })
       }).then(response => {
         if (response.ok) {
-          window.location.href = "<%= root_path %>";
+          document.getElementById('next-page-link').style.display = 'block';  // 次のページリンクを表示
         } else {
-          console.error('試行の記録に失敗しました。');
+          console.error('クリックの記録に失敗しました。');
         }
       }).catch(error => {
-        console.error('試行の記録に失敗しました: ', error);
+        console.error('クリックの記録に失敗しました: ', error);
       });
-    });
+    }
   </script>
+
+  <p><%= link_to 'スタートページに戻る', root_path, class: 'start-page-link' %></p>
+
+<% else %>
+  <p>これが最後のページです。スタートページに戻ります。</p>
+  <%= link_to '最初のページへ戻る', root_path, class: 'complete-trial-link' %>
+  <%= link_to 'リタイア', root_path, class: 'retire-link' %>
 <% end %>
